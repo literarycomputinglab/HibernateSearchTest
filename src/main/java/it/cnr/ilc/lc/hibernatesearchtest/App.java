@@ -27,34 +27,54 @@ public class App {
 
     public static void main(String[] args) {
         org.hibernate.Session session = HibernateSessionFactory.getSession();
+
         try {
             Contact angelo = new Contact();
-            angelo.setId(1);
+            //angelo.setId(1);
             angelo.setEmail("angelo@provider.com");
             angelo.setName("Angelo Mario Del Grosso");
 
             //session.saveOrUpdate(angelo);
-
+            //session.flush();
             FullTextSession fullTextSession = org.hibernate.search.Search.getFullTextSession(session);
+            //fullTextSession.createIndexer().startAndWait();
+
             Transaction tx = fullTextSession.beginTransaction();
 
             QueryBuilder qb = fullTextSession.getSearchFactory().buildQueryBuilder().forEntity(Contact.class).get();
-            org.apache.lucene.search.Query query = qb.keyword().onFields("name").matching("Angelo").createQuery();
+            // org.apache.lucene.search.Query query = qb.keyword().wildcard().onFields("name").matching("angel*").createQuery();
+            org.apache.lucene.search.Query query = qb
+                    .keyword()
+                    .fuzzy()
+                    .withEditDistanceUpTo(2)
+                    .withPrefixLength(1)
+                    .onField("name")
+                    .matching("Angillo")
+                    .createQuery();
+            // org.apache.lucene.search.Query query = qb.keyword().onField("name").matching("angelo").createQuery();
+
+            //org.apache.lucene.search.Query query = qb.phrase().onField("name").sentence("Angelo Mario").createQuery();
             // wrap Lucene query in a org.hibernate.Query  
             org.hibernate.Query hibQuery = fullTextSession.createFullTextQuery(query, Contact.class);
+            // fullTextSession.close();
             // execute search  
             List result = hibQuery.list();
             Iterator<Contact> it = result.iterator();
             while (it.hasNext()) {
                 Contact c = (Contact) it.next();
-                System.out.println(c);
+                System.err.println("RES: " + c);
             }
             tx.commit();
 
         } catch (Exception e) {
-            // TODO: handle exception  
+            System.err.println(e.getMessage());
         } finally {
-            session.close();
+            try {
+                session.close();
+
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+            }
         }
 
     }
