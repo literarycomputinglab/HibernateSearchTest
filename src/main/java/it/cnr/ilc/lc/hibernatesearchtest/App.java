@@ -11,7 +11,8 @@ package it.cnr.ilc.lc.hibernatesearchtest;
  */
 import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -25,8 +26,12 @@ import org.hibernate.search.query.dsl.QueryBuilder;
  */
 public class App {
 
+    private static final Logger logger = LogManager.getLogger(App.class);
+    
     public static void main(String[] args) {
+        logger.trace("puppacilafava");
         org.hibernate.Session session = HibernateSessionFactory.getSession();
+        //     Logger.getLogger( LogCategory.INFOSTREAM_LOGGER_CATEGORY.toString() ).setLevel(  );
 
         try {
             Contact angelo = new Contact();
@@ -37,20 +42,22 @@ public class App {
             //session.saveOrUpdate(angelo);
             //session.flush();
             FullTextSession fullTextSession = org.hibernate.search.Search.getFullTextSession(session);
-            //fullTextSession.createIndexer().startAndWait();
+            fullTextSession.createIndexer().startAndWait();
 
             Transaction tx = fullTextSession.beginTransaction();
 
             QueryBuilder qb = fullTextSession.getSearchFactory().buildQueryBuilder().forEntity(Contact.class).get();
             // org.apache.lucene.search.Query query = qb.keyword().wildcard().onFields("name").matching("angel*").createQuery();
-            org.apache.lucene.search.Query query = qb
-                    .keyword()
-                    .fuzzy()
-                    .withEditDistanceUpTo(2)
-                    .withPrefixLength(1)
-                    .onField("name")
-                    .matching("Angillo")
-                    .createQuery();
+//            org.apache.lucene.search.Query query = qb
+//                    .keyword()
+//                    .fuzzy()
+//                    .withEditDistanceUpTo(2)
+//                    .withPrefixLength(1)
+//                    .onField("name")
+//                    .matching("Angillo")
+//                    .createQuery();
+
+            org.apache.lucene.search.Query query = qb.phrase().onField("email").sentence("angelo").createQuery();
             // org.apache.lucene.search.Query query = qb.keyword().onField("name").matching("angelo").createQuery();
 
             //org.apache.lucene.search.Query query = qb.phrase().onField("name").sentence("Angelo Mario").createQuery();
@@ -67,26 +74,26 @@ public class App {
             tx.commit();
 
         } catch (Exception e) {
-            System.err.println(e.getMessage());
+            e.printStackTrace();
         } finally {
             try {
                 session.close();
 
             } catch (Exception e) {
-                System.err.println(e.getMessage());
+                System.err.println("CATCH2: " + e.getMessage());
             }
         }
 
     }
 
-//    private static void doIndex() throws InterruptedException {
-//        Session session = HibernateUtil.getSession();
-//         
-//        FullTextSession fullTextSession = Search.getFullTextSession(session);
-//        fullTextSession.createIndexer().startAndWait();
-//         
-//        fullTextSession.close();
-//    }
+    private static void doIndex() throws InterruptedException {
+        Session session = HibernateUtil.getSession();
+
+        FullTextSession fullTextSession = Search.getFullTextSession(session);
+        fullTextSession.createIndexer().startAndWait();
+
+        fullTextSession.close();
+    }
 //     
 //    private static List<Contact> search(String queryString) {
 //        Session session = HibernateUtil.getSession();
