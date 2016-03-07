@@ -25,7 +25,10 @@ public class GenerateContacts {
     public List<Contact> generate(String... names) {
         for (String name : names) {
             System.err.println("GENERATE:" + name);
-            contacts.add(new Contact(Double.valueOf(Math.random() * 10).intValue(), name, String.format("%s@pmail.com", name)));
+            Contact c = new Contact();
+            c.setName(name); 
+            c.setEmail(String.format("%s@pmail.com", name));
+            contacts.add(c);
 
         }
         return contacts;

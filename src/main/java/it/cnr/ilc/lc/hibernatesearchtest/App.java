@@ -61,10 +61,10 @@ public class App {
             /* JPA */
             for (Contact contact : contacts1) {
                 System.err.println(contact.toString());
-                Contact c = new Contact();
-                c.setName(contact.getName());
-                c.setEmail(contact.getEmail());
-                omegaEntityManager.persist(c);
+                //Contact c = new Contact();
+                //c.setName(contact.getName());
+                //c.setEmail(contact.getEmail());
+                omegaEntityManager.persist(contact);
 
             }
 
@@ -111,7 +111,7 @@ public class App {
                     .keyword()
                     .wildcard()
                     .onFields("name")
-                    .matching("miche*")
+                    .matching("anto*")
                     .createQuery();
 
             javax.persistence.Query persistenceQuery
@@ -123,21 +123,24 @@ public class App {
                 Contact c = (Contact) it.next();
                 System.err.println("RES: " + c);
             }
-            /* hibernate */
-            //tx.commit();
-
+          
             /* JPA */
             omegaEntityManager.getTransaction().commit();
+            
+              /* hibernate */
+            //tx.commit();
+
 
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-                /* hibernate */
-                //session.close();
-
+               
                 /* JPA */
                 omegaEntityManager.close();
+                
+                 /* hibernate */
+                //session.close();
 
             } catch (Exception e) {
                 System.err.println("CATCH2: " + e.getMessage());
