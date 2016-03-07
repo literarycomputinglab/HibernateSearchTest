@@ -9,6 +9,7 @@ package it.cnr.ilc.lc.hibernatesearchtest;
  *
  * @author simone
  */
+import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -33,11 +34,91 @@ public class App {
     private static final Logger logger = LogManager.getLogger(App.class);
 
     public static void main(String[] args) {
-        logger.trace("puppacilafava");
+
+        omegaEmbeddedExample();
+    }
+
+    public static void omegaEmbeddedExample() {
+
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("omegaEmbeddedExample");
+        EntityManager omegaEntityManager = entityManagerFactory.createEntityManager();
+
+//        omegaEntityManager.getTransaction().begin();
+//
+//        Content c = new Content();
+//        Source s = new Source();
+//
+//        s.setContent(c);
+//        s.setUri(URI.create("/uriexample/1").toASCIIString());
+//        c.setData("Testo del contenuto");
+//
+//        Content c2 = new Content();
+//        Source s2 = new Source();
+//
+//        s2.setContent(c2);
+//        s2.setUri(URI.create("/uriexample/2").toASCIIString());
+//        c2.setData("Secondo testo del contenuto");
+//
+//        omegaEntityManager.persist(s);
+//        omegaEntityManager.persist(s2);
+//        omegaEntityManager.getTransaction().commit();
+        FullTextEntityManager fullTextEntityManager
+                = org.hibernate.search.jpa.Search.getFullTextEntityManager(omegaEntityManager);
+
+        omegaEntityManager.getTransaction().begin();
+        QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Source.class).get();
+//        org.apache.lucene.search.Query query = qb
+//                .keyword()
+//                .wildcard()
+//                .onField("content.data")
+//                .matching("seco*")
+//                .createQuery();
+//        
+        org.apache.lucene.search.Query query = qb
+                .phrase()
+                .onField("content.data")
+                .sentence("secondo testo del")
+                .createQuery();
+
+        javax.persistence.Query persistenceQuery
+                = fullTextEntityManager.createFullTextQuery(query, Source.class);
+        List result = persistenceQuery.getResultList();
+
+        Iterator<Source> it = result.iterator();
+        while (it.hasNext()) {
+            Source source = (Source) it.next();
+            System.err.println("RES: " + source.getUri() + " => " + source.getContent().getData());
+            //source.getContent().setData("terzo testo del contenuto");
+            omegaEntityManager.getTransaction().commit();
+            break;
+        }
+
+        omegaEntityManager.getTransaction().begin();
+
+        query = qb.phrase()
+                .onField("content.data")
+                .sentence("terzo testo del")
+                .createQuery();
+
+        persistenceQuery
+                = fullTextEntityManager.createFullTextQuery(query, Source.class);
+        result = persistenceQuery.getResultList();
+
+        it = result.iterator();
+        while (it.hasNext()) {
+            Source source = (Source) it.next();
+            System.err.println("RES2: " + source.getUri() + " => " + source.getContent().getData());
+        }
+
+        /* JPA */
+        omegaEntityManager.getTransaction().commit();
+    }
+
+    public static void contactExample() {
+
         // org.hibernate.Session session = HibernateSessionFactory.getSession();
         //     Logger.getLogger( LogCategory.INFOSTREAM_LOGGER_CATEGORY.toString() ).setLevel(  );
-
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("OmegaPU");
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("contactExample");
         EntityManager omegaEntityManager = entityManagerFactory.createEntityManager();
 
         try {
@@ -123,25 +204,22 @@ public class App {
                 Contact c = (Contact) it.next();
                 System.err.println("RES: " + c);
             }
-          
+
             /* JPA */
             omegaEntityManager.getTransaction().commit();
-            
-              /* hibernate */
+
+            /* hibernate */
             //tx.commit();
-
-
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
             try {
-               
+
                 /* JPA */
                 omegaEntityManager.close();
-                
-                 /* hibernate */
-                //session.close();
 
+                /* hibernate */
+                //session.close();
             } catch (Exception e) {
                 System.err.println("CATCH2: " + e.getMessage());
             }
