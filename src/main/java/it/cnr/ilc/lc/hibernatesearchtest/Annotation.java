@@ -6,13 +6,11 @@
 package it.cnr.ilc.lc.hibernatesearchtest;
 
 import java.util.List;
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
-import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -23,29 +21,30 @@ import org.hibernate.search.annotations.IndexedEmbedded;
  */
 @Entity
 @Indexed
-public class Source {
+public class Annotation {
 
     @Id
     @GeneratedValue
     private Long id;
 
     @Field
-    String uri;
+    @ManyToMany
+    List<Annotation> annotations;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    @Field
     @IndexedEmbedded
     Content content;
 
-    @ContainedIn
-    @OneToMany(mappedBy = "source")
+    @OneToMany
+    @IndexedEmbedded
     List<Locus> loci;
 
-    public String getUri() {
-        return uri;
+    public List<Annotation> getAnnotations() {
+        return annotations;
     }
 
-    public void setUri(String uri) {
-        this.uri = uri;
+    public void setAnnotations(List<Annotation> annotations) {
+        this.annotations = annotations;
     }
 
     public Content getContent() {
@@ -54,6 +53,14 @@ public class Source {
 
     public void setContent(Content content) {
         this.content = content;
+    }
+
+    public List<Locus> getLoci() {
+        return loci;
+    }
+
+    public void setLoci(List<Locus> loci) {
+        this.loci = loci;
     }
 
     public Long getId() {

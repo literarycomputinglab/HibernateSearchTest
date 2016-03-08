@@ -26,7 +26,19 @@ public class Content {
     private Long id;
 
     @Field
-    String data;
+    private String data;
+
+    @ContainedIn
+    @OneToOne(mappedBy = "content")
+    private Source source;
+
+    public Source getSource() {
+        return source;
+    }
+
+    public void setSource(Source source) {
+        this.source = source;
+    }
 
     public String getData() {
         return data;
@@ -35,10 +47,6 @@ public class Content {
     public void setData(String data) {
         this.data = data;
     }
-
-    @ContainedIn
-    @OneToOne(mappedBy = "content")
-    Source source;
 
     public Long getId() {
         return id;

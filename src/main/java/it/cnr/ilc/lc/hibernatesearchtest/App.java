@@ -10,6 +10,7 @@ package it.cnr.ilc.lc.hibernatesearchtest;
  * @author simone
  */
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -36,6 +37,74 @@ public class App {
     public static void main(String[] args) {
 
         omegaEmbeddedExample();
+    }
+
+    public static void omegaPathExample() {
+
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("omegaEmbeddedExample");
+        EntityManager omegaEntityManager = entityManagerFactory.createEntityManager();
+
+        omegaEntityManager.getTransaction().begin();
+
+        Source s = new Source();
+
+        s.setUri(URI.create("/uri/source/02").toASCIIString());
+
+        Content c1 = new Content();
+        c1.setData("Contenuto della source");
+
+        Content c2 = new Content();
+        c2.setData("Contenuto della annotazione");
+
+        s.setContent(c1);
+        c1.setSource(s);
+
+        Locus l1 = new Locus();
+        l1.setSource(s);
+        l1.setStart(0);
+        l1.setEnd(5);
+        l1.setFragment(l1.getSource().getContent().getData().substring(l1.getStart(), l1.getEnd()));
+
+        Locus l2 = new Locus();
+        l2.setSource(s);
+        l2.setStart(10);
+        l2.setEnd(14);
+        l2.setFragment(l2.getSource().getContent().getData().substring(l2.getStart(), l2.getEnd()));
+
+        Annotation a = new Annotation();
+        a.setContent(c2);
+        List<Locus> loci = new ArrayList<Locus>();
+        loci.add(l1);
+        loci.add(l2);
+        a.setLoci(loci);
+
+        omegaEntityManager.persist(a);
+        omegaEntityManager.getTransaction().commit();
+
+        FullTextEntityManager fullTextEntityManager
+                = org.hibernate.search.jpa.Search.getFullTextEntityManager(omegaEntityManager);
+
+        omegaEntityManager.getTransaction().begin();
+        QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Annotation.class).get();
+
+        org.apache.lucene.search.Query query = qb
+                .phrase()
+                .onField("loci.fragment")
+                .sentence("Co")
+                .createQuery();
+
+        javax.persistence.Query persistenceQuery
+                = fullTextEntityManager.createFullTextQuery(query, Annotation.class);
+        List result = persistenceQuery.getResultList();
+
+        Iterator<Annotation> it = result.iterator();
+        while (it.hasNext()) {
+            Annotation ann = (Annotation) it.next();
+            System.err.println("RES: " + ann.getContent().getData() + " => " + ann.getId());
+            //source.getContent().setData("terzo testo del contenuto");
+        }
+        omegaEntityManager.getTransaction().commit();
+
     }
 
     public static void omegaEmbeddedExample() {
