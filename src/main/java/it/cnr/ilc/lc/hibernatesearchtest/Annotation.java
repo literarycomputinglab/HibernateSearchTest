@@ -6,11 +6,13 @@
 package it.cnr.ilc.lc.hibernatesearchtest;
 
 import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
+import javax.persistence.OneToOne;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -27,32 +29,33 @@ public class Annotation {
     @GeneratedValue
     private Long id;
 
-    @Field
-    @ManyToMany
-    List<Annotation> annotations;
+//    @Field
+//    @ManyToMany
+//    List<Annotation> annotations;
 
     @Field
+    @OneToOne
     @IndexedEmbedded
-    Content content;
+    Content cont;
 
-    @OneToMany
+    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     @IndexedEmbedded
     List<Locus> loci;
 
-    public List<Annotation> getAnnotations() {
-        return annotations;
+//    public List<Annotation> getAnnotations() {
+//        return annotations;
+//    }
+//
+//    public void setAnnotations(List<Annotation> annotations) {
+//        this.annotations = annotations;
+//    }
+
+    public Content getCont() {
+        return cont;
     }
 
-    public void setAnnotations(List<Annotation> annotations) {
-        this.annotations = annotations;
-    }
-
-    public Content getContent() {
-        return content;
-    }
-
-    public void setContent(Content content) {
-        this.content = content;
+    public void setCont(Content cont) {
+        this.cont = cont;
     }
 
     public List<Locus> getLoci() {

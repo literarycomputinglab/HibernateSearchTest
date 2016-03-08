@@ -16,7 +16,6 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
-import javax.swing.text.AbstractDocument;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -36,12 +35,13 @@ public class App {
 
     public static void main(String[] args) {
 
-        omegaEmbeddedExample();
+        //omegaEmbeddedExample();
+        omegaPathExample();
     }
 
     public static void omegaPathExample() {
 
-        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("omegaEmbeddedExample");
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("omegaEmbeddedPathExample");
         EntityManager omegaEntityManager = entityManagerFactory.createEntityManager();
 
         omegaEntityManager.getTransaction().begin();
@@ -72,7 +72,7 @@ public class App {
         l2.setFragment(l2.getSource().getContent().getData().substring(l2.getStart(), l2.getEnd()));
 
         Annotation a = new Annotation();
-        a.setContent(c2);
+        a.setCont(c2);
         List<Locus> loci = new ArrayList<Locus>();
         loci.add(l1);
         loci.add(l2);
@@ -100,7 +100,7 @@ public class App {
         Iterator<Annotation> it = result.iterator();
         while (it.hasNext()) {
             Annotation ann = (Annotation) it.next();
-            System.err.println("RES: " + ann.getContent().getData() + " => " + ann.getId());
+            System.err.println("RES: " + ann.getCont().getData() + " => " + ann.getId());
             //source.getContent().setData("terzo testo del contenuto");
         }
         omegaEntityManager.getTransaction().commit();
@@ -139,7 +139,7 @@ public class App {
 //        org.apache.lucene.search.Query query = qb
 //                .keyword()
 //                .wildcard()
-//                .onField("content.data")
+//                .onField("cont.data")
 //                .matching("seco*")
 //                .createQuery();
 //        

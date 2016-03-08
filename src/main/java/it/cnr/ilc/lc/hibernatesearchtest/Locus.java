@@ -8,6 +8,8 @@ package it.cnr.ilc.lc.hibernatesearchtest;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import org.hibernate.search.annotations.ContainedIn;
 import org.hibernate.search.annotations.Field;
@@ -58,8 +60,8 @@ public class Locus {
         this.annotation = annotation;
     }
 
-    @OneToOne (mappedBy = "loci")
     @ContainedIn
+    @OneToOne // il mapped by?
     Annotation annotation;
 
     public Integer getStart() {
