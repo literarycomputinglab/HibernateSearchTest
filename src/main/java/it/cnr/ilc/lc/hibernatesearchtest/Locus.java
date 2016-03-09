@@ -5,6 +5,7 @@
  */
 package it.cnr.ilc.lc.hibernatesearchtest;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -40,9 +41,13 @@ public class Locus {
     @Field
     String fragment;
 
-    @OneToOne
+    @OneToOne (cascade = {CascadeType.ALL})
     @IndexedEmbedded(includePaths = {"uri"})
     Source source;
+
+    @ContainedIn
+    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
+    Annotation annotation;
 
     public Source getSource() {
         return source;
@@ -59,10 +64,6 @@ public class Locus {
     public void setAnnotation(Annotation annotation) {
         this.annotation = annotation;
     }
-
-    @ContainedIn
-    @OneToOne // il mapped by?
-    Annotation annotation;
 
     public Integer getStart() {
         return start;
@@ -96,4 +97,11 @@ public class Locus {
         this.id = id;
     }
 
+    @Override
+    public String toString() {
+        return String.format("%s: [%d - %d)", getFragment(), getStart(), getEnd());
+    }
+
+    
+    
 }

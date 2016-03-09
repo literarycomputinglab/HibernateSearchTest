@@ -33,13 +33,12 @@ public class Annotation {
 //    @ManyToMany
 //    List<Annotation> annotations;
 
-    @Field
-    @OneToOne
+    @OneToOne (cascade = {CascadeType.ALL})
     @IndexedEmbedded
     Content cont;
 
-    @OneToMany(cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
-    @IndexedEmbedded
+    @OneToMany(mappedBy = "annotation", cascade = {CascadeType.ALL})
+    @IndexedEmbedded 
     List<Locus> loci;
 
 //    public List<Annotation> getAnnotations() {

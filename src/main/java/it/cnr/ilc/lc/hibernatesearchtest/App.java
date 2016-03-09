@@ -18,6 +18,7 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.lucene.queryparser.classic.QueryParser;
 
 import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
@@ -78,7 +79,26 @@ public class App {
         loci.add(l2);
         a.setLoci(loci);
 
+        l1.setAnnotation(a);
+        l2.setAnnotation(a);
+
+        Content c3 = new Content();
+        c3.setData("Altro contenuto di una seconda annotazione");
+        Annotation a2 = new Annotation();
+        a2.setCont(c3);
+        List<Locus> loci2 = new ArrayList<Locus>();
+        Locus l3 = new Locus();
+        l3.setSource(s);
+        l3.setStart(0);
+        l3.setEnd(5);
+        l3.setFragment(l3.getSource().getContent().getData().substring(l3.getStart(), l3.getEnd()));
+        loci2.add(l3);
+        a2.setLoci(loci2);
+        l3.setAnnotation(a2);
+
         omegaEntityManager.persist(a);
+        omegaEntityManager.persist(a2);
+
         omegaEntityManager.getTransaction().commit();
 
         FullTextEntityManager fullTextEntityManager
@@ -87,10 +107,12 @@ public class App {
         omegaEntityManager.getTransaction().begin();
         QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Annotation.class).get();
 
+        logger.info("Before query");
+
         org.apache.lucene.search.Query query = qb
                 .phrase()
                 .onField("loci.fragment")
-                .sentence("Co")
+                .sentence("Conte")
                 .createQuery();
 
         javax.persistence.Query persistenceQuery
@@ -100,10 +122,12 @@ public class App {
         Iterator<Annotation> it = result.iterator();
         while (it.hasNext()) {
             Annotation ann = (Annotation) it.next();
-            System.err.println("RES: " + ann.getCont().getData() + " => " + ann.getId());
+            logger.info("RES: " + ann.getCont().getData() + " => " + ann.getId() + " : " + ann.getLoci());
+            
             //source.getContent().setData("terzo testo del contenuto");
         }
         omegaEntityManager.getTransaction().commit();
+        logger.info("After query and commit");
 
     }
 
