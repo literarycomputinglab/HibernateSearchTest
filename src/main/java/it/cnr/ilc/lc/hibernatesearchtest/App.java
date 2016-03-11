@@ -18,11 +18,13 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.lucene.queryparser.classic.ParseException;
 import org.apache.lucene.queryparser.classic.QueryParser;
 
 import org.hibernate.Session;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
+import org.hibernate.search.SearchFactory;
 import org.hibernate.search.jpa.FullTextEntityManager;
 import org.hibernate.search.query.dsl.QueryBuilder;
 
@@ -31,108 +33,131 @@ import org.hibernate.search.query.dsl.QueryBuilder;
  *
  */
 public class App {
-
+    
     private static final Logger logger = LogManager.getLogger(App.class);
-
+    
     public static void main(String[] args) {
 
         //omegaEmbeddedExample();
-        omegaPathExample();
+        omegaPathExample(false);
     }
-
-    public static void omegaPathExample() {
-
+    
+    public static void omegaPathExample(boolean condition) {
+        
+        Boolean create = new Boolean(condition);
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("omegaEmbeddedPathExample");
         EntityManager omegaEntityManager = entityManagerFactory.createEntityManager();
-
-        omegaEntityManager.getTransaction().begin();
-
-        Source s = new Source();
-
-        s.setUri(URI.create("/uri/source/02").toASCIIString());
-
-        Content c1 = new Content();
-        c1.setData("Contenuto della source");
-
-        Content c2 = new Content();
-        c2.setData("Contenuto della annotazione");
-
-        s.setContent(c1);
-        c1.setSource(s);
-
-        Locus l1 = new Locus();
-        l1.setSource(s);
-        l1.setStart(0);
-        l1.setEnd(5);
-        l1.setFragment(l1.getSource().getContent().getData().substring(l1.getStart(), l1.getEnd()));
-
-        Locus l2 = new Locus();
-        l2.setSource(s);
-        l2.setStart(10);
-        l2.setEnd(14);
-        l2.setFragment(l2.getSource().getContent().getData().substring(l2.getStart(), l2.getEnd()));
-
-        Annotation a = new Annotation();
-        a.setCont(c2);
-        List<Locus> loci = new ArrayList<Locus>();
-        loci.add(l1);
-        loci.add(l2);
-        a.setLoci(loci);
-
-        l1.setAnnotation(a);
-        l2.setAnnotation(a);
-
-        Content c3 = new Content();
-        c3.setData("Altro contenuto di una seconda annotazione");
-        Annotation a2 = new Annotation();
-        a2.setCont(c3);
-        List<Locus> loci2 = new ArrayList<Locus>();
-        Locus l3 = new Locus();
-        l3.setSource(s);
-        l3.setStart(0);
-        l3.setEnd(5);
-        l3.setFragment(l3.getSource().getContent().getData().substring(l3.getStart(), l3.getEnd()));
-        loci2.add(l3);
-        a2.setLoci(loci2);
-        l3.setAnnotation(a2);
-
-        omegaEntityManager.persist(a);
-        omegaEntityManager.persist(a2);
-
-        omegaEntityManager.getTransaction().commit();
-
+        
+        if (create) {
+            omegaEntityManager.getTransaction().begin();
+            
+            Source s = new Source();
+            
+            s.setUri(URI.create("/uri/source/02").toASCIIString());
+            
+            Content c1 = new Content();
+            c1.setData("Contenuto della source");
+            
+            Content c2 = new Content();
+            c2.setData("Contenuto della annotazione");
+            
+            s.setContent(c1);
+            c1.setSource(s);
+            
+            Locus l1 = new Locus();
+            l1.setSource(s);
+            l1.setStart(0);
+            l1.setEnd(5);
+            l1.setFragment(l1.getSource().getContent().getData().substring(l1.getStart(), l1.getEnd()));
+            
+            Locus l2 = new Locus();
+            l2.setSource(s);
+            l2.setStart(10);
+            l2.setEnd(14);
+            l2.setFragment(l2.getSource().getContent().getData().substring(l2.getStart(), l2.getEnd()));
+            
+            Annotation a = new Annotation();
+            a.setCont(c2);
+            List<Locus> loci = new ArrayList<Locus>();
+            loci.add(l1);
+            loci.add(l2);
+            a.setLoci(loci);
+            
+            l1.setAnnotation(a);
+            l2.setAnnotation(a);
+            
+            Content c3 = new Content();
+            c3.setData("Altro contenuto di una seconda annotazione");
+            Annotation a2 = new Annotation();
+            a2.setCont(c3);
+            List<Locus> loci2 = new ArrayList<Locus>();
+            Locus l3 = new Locus();
+            l3.setSource(s);
+            l3.setStart(0);
+            l3.setEnd(5);
+            l3.setFragment(l3.getSource().getContent().getData().substring(l3.getStart(), l3.getEnd()));
+            loci2.add(l3);
+            a2.setLoci(loci2);
+            l3.setAnnotation(a2);
+            
+            omegaEntityManager.persist(a);
+            omegaEntityManager.persist(a2);
+            
+            omegaEntityManager.getTransaction().commit();
+        }
+        
         FullTextEntityManager fullTextEntityManager
                 = org.hibernate.search.jpa.Search.getFullTextEntityManager(omegaEntityManager);
-
+        
         omegaEntityManager.getTransaction().begin();
-        QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Annotation.class).get();
+//        QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Annotation.class).get();
+//
+//        logger.info("Before query");
+//
+//        org.apache.lucene.search.Query query = qb
+//                .phrase()
+//                .onField("loci.fragment")
+//                .sentence("Conte")
+//                .createQuery();
+//
+//        javax.persistence.Query persistenceQuery
+//                = fullTextEntityManager.createFullTextQuery(query, Annotation.class);
+//        List result = persistenceQuery.getResultList();
+//
+//        Iterator<Annotation> it = result.iterator();
+//        while (it.hasNext()) {
+//            Annotation ann = (Annotation) it.next();
+//            logger.info("RES: " + ann.getCont().getData() + " => " + ann.getId() + " : " + ann.getLoci());
+//
+//            //source.getContent().setData("terzo testo del contenuto");
+//        }
 
-        logger.info("Before query");
-
-        org.apache.lucene.search.Query query = qb
-                .phrase()
-                .onField("loci.fragment")
-                .sentence("Conte")
-                .createQuery();
-
-        javax.persistence.Query persistenceQuery
-                = fullTextEntityManager.createFullTextQuery(query, Annotation.class);
-        List result = persistenceQuery.getResultList();
-
-        Iterator<Annotation> it = result.iterator();
-        while (it.hasNext()) {
-            Annotation ann = (Annotation) it.next();
-            logger.info("RES: " + ann.getCont().getData() + " => " + ann.getId() + " : " + ann.getLoci());
+        SearchFactory searchFactory = fullTextEntityManager.getSearchFactory();
+        
+        QueryParser parser = new QueryParser("cont.data", searchFactory.getAnalyzer(Annotation.class));
+        
+        try {
+            org.apache.lucene.search.Query luceneQuery = parser.parse("cont.data:Altro");
+            javax.persistence.Query fullTextQuery
+                    = fullTextEntityManager.createFullTextQuery(luceneQuery);
             
-            //source.getContent().setData("terzo testo del contenuto");
+            List<Annotation> result = fullTextQuery.getResultList();
+            
+            for (Annotation r : result) {
+                logger.info(r.getId() + " " + r.getCont().getData());
+            }
+            
+        } catch (ParseException e) {
+            e.printStackTrace();
         }
+        
         omegaEntityManager.getTransaction().commit();
         logger.info("After query and commit");
-
+        
     }
-
+    
     public static void omegaEmbeddedExample() {
-
+        
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("omegaEmbeddedExample");
         EntityManager omegaEntityManager = entityManagerFactory.createEntityManager();
 
@@ -157,7 +182,7 @@ public class App {
 //        omegaEntityManager.getTransaction().commit();
         FullTextEntityManager fullTextEntityManager
                 = org.hibernate.search.jpa.Search.getFullTextEntityManager(omegaEntityManager);
-
+        
         omegaEntityManager.getTransaction().begin();
         QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Source.class).get();
 //        org.apache.lucene.search.Query query = qb
@@ -172,11 +197,11 @@ public class App {
                 .onField("content.data")
                 .sentence("secondo testo del")
                 .createQuery();
-
+        
         javax.persistence.Query persistenceQuery
                 = fullTextEntityManager.createFullTextQuery(query, Source.class);
         List result = persistenceQuery.getResultList();
-
+        
         Iterator<Source> it = result.iterator();
         while (it.hasNext()) {
             Source source = (Source) it.next();
@@ -185,18 +210,18 @@ public class App {
             omegaEntityManager.getTransaction().commit();
             break;
         }
-
+        
         omegaEntityManager.getTransaction().begin();
-
+        
         query = qb.phrase()
                 .onField("content.data")
                 .sentence("terzo testo del")
                 .createQuery();
-
+        
         persistenceQuery
                 = fullTextEntityManager.createFullTextQuery(query, Source.class);
         result = persistenceQuery.getResultList();
-
+        
         it = result.iterator();
         while (it.hasNext()) {
             Source source = (Source) it.next();
@@ -206,14 +231,14 @@ public class App {
         /* JPA */
         omegaEntityManager.getTransaction().commit();
     }
-
+    
     public static void contactExample() {
 
         // org.hibernate.Session session = HibernateSessionFactory.getSession();
         //     Logger.getLogger( LogCategory.INFOSTREAM_LOGGER_CATEGORY.toString() ).setLevel(  );
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("contactExample");
         EntityManager omegaEntityManager = entityManagerFactory.createEntityManager();
-
+        
         try {
             //Contact angelo = new Contact();
             //angelo.setId(1);
@@ -225,7 +250,7 @@ public class App {
             //michele.setEmail("michele@provider.com");
             //michele.setName("Michele Antonio Di Tocco");
             omegaEntityManager.getTransaction().begin();
-
+            
             List<Contact> contacts1 = GenerateContacts.INSTANCE.generate("angelo", "angela", "michele", "michela", "antonio", "antonia", "antonietta", "antonina");
 
 
@@ -239,9 +264,9 @@ public class App {
                 //c.setName(contact.getName());
                 //c.setEmail(contact.getEmail());
                 omegaEntityManager.persist(contact);
-
+                
             }
-
+            
             omegaEntityManager.getTransaction().commit();
 //            omegaEntityManager.getTransaction().begin();
 //
@@ -287,11 +312,11 @@ public class App {
                     .onFields("name")
                     .matching("anto*")
                     .createQuery();
-
+            
             javax.persistence.Query persistenceQuery
                     = fullTextEntityManager.createFullTextQuery(query, Contact.class);
             List result = persistenceQuery.getResultList();
-
+            
             Iterator<Contact> it = result.iterator();
             while (it.hasNext()) {
                 Contact c = (Contact) it.next();
@@ -317,15 +342,15 @@ public class App {
                 System.err.println("CATCH2: " + e.getMessage());
             }
         }
-
+        
     }
-
+    
     private static void doIndex() throws InterruptedException {
         Session session = HibernateUtil.getSession();
-
+        
         FullTextSession fullTextSession = Search.getFullTextSession(session);
         fullTextSession.createIndexer().startAndWait();
-
+        
         fullTextSession.close();
     }
 //     
