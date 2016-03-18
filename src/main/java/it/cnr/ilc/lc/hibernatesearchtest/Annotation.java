@@ -13,6 +13,8 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
+import org.hibernate.search.annotations.Analyze;
+import org.hibernate.search.annotations.Facet;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -41,6 +43,9 @@ public class Annotation {
     @IndexedEmbedded 
     List<Locus> loci;
 
+    @Field(analyze = Analyze.NO)
+    @Facet
+    String type;
 //    public List<Annotation> getAnnotations() {
 //        return annotations;
 //    }
@@ -48,6 +53,14 @@ public class Annotation {
 //    public void setAnnotations(List<Annotation> annotations) {
 //        this.annotations = annotations;
 //    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
 
     public Content getCont() {
         return cont;
