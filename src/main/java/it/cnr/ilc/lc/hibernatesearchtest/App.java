@@ -45,10 +45,12 @@ public class App {
 
         //omegaEmbeddedExample();
         //omegaPathExample(false);
-        omegaFacetExample();
+        omegaFacetExample("");
     }
 
-    private static void omegaFacetExample() {
+    public static List<Annotation> omegaFacetExample(String str) {
+
+        logger.info("the string reached is: " + str);
 
         EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("facetExample");
         EntityManager omegaEntityManager = entityManagerFactory.createEntityManager();
@@ -131,32 +133,31 @@ public class App {
         FullTextQuery fullTextQuery = fullTextEntityManager.createFullTextQuery(luceneQuery, Annotation.class);
         FacetManager facetManager = fullTextQuery.getFacetManager();
         facetManager.enableFaceting(labelFacetingRequest);
-        
+
         List<Annotation> results = fullTextQuery.getResultList();
-        
+
         for (Annotation result : results) {
-            
-            logger.info("id: " + result.getId() + " " +result.getCont().getData());
-            
+
+            logger.info("id: " + result.getId() + " " + result.getCont().getData());
+
         }
-        
+
         List<Facet> facets = facetManager.getFacets("typeFacetRequest");
-        
-        logger.info("facets:  " +facets.size());
-        
+
+        logger.info("facets:  " + facets.size());
+
         for (Facet facet : facets) {
             logger.info("faceting name: " + facet.getFacetingName());
             logger.info("count: " + facet.getCount());
             logger.info("field name: " + facet.getFieldName());
             logger.info("value: " + facet.getValue());
             logger.info("facet query: " + facet.getFacetQuery());
-            
-            
+
         }
-        
-        
 
         omegaEntityManager.getTransaction().commit();
+
+        return results;
 
     }
 
