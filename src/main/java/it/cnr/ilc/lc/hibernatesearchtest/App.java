@@ -9,10 +9,17 @@ package it.cnr.ilc.lc.hibernatesearchtest;
  *
  * @author simone
  */
+import antlr.InputBuffer;
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URI;
+import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
@@ -45,7 +52,9 @@ public class App {
 
         //omegaEmbeddedExample();
         //omegaPathExample(false);
-        omegaFacetExample("");
+        //omegaFacetExample("");
+        //omegaKeySearch("");
+        omegaResourceCreate();
     }
 
     public static List<Annotation> omegaFacetExample(String str) {
@@ -540,5 +549,58 @@ public class App {
 //            }               
 //        }           
 //    }
+
+    private static void omegaKeySearch(String string) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private static void omegaResourceCreate() {
+        StringBuffer sb = new StringBuffer();
+        InputStream is = App.class.getResourceAsStream("/texts/paginaBoccaccio.txt");
+        InputStreamReader reader = new InputStreamReader(is, Charset.forName("utf-8"));
+        BufferedReader buffer = new BufferedReader(reader);
+        List<String> lines = buffer.lines().collect(Collectors.toList());
+        for (String line : lines) {
+            sb.append(line + " ");
+        }
+
+        Content boccaccio = new Content();
+        boccaccio.setData(sb.toString());
+        System.err.println(boccaccio);
+
+        System.err.println("***********");
+
+        sb.replace(0, sb.length(), "");
+        sb.trimToSize();
+
+        is = App.class.getResourceAsStream("/texts/paginaDante.txt");
+        reader = new InputStreamReader(is, Charset.forName("utf-8"));
+        buffer = new BufferedReader(reader);
+        lines = buffer.lines().collect(Collectors.toList());
+        for (String line : lines) {
+            sb.append(line + " ");
+        }
+
+        Content dante = new Content();
+        dante.setData(sb.toString());
+        System.err.println(dante);
+
+        System.err.println("***********");
+
+        sb.replace(0, sb.length(), "");
+        sb.trimToSize();
+
+        is = App.class.getResourceAsStream("/texts/paginaPetrarca.txt");
+        reader = new InputStreamReader(is, Charset.forName("utf-8"));
+        buffer = new BufferedReader(reader);
+        lines = buffer.lines().collect(Collectors.toList());
+        for (String line : lines) {
+            sb.append(line + " ");
+        }
+        Content petrarca = new Content();
+        petrarca.setData(sb.toString());
+        System.err.println(petrarca);
+
+    }
 
 }

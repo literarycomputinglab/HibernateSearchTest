@@ -56,4 +56,9 @@ public class Content {
         this.id = id;
     }
 
+    @Override
+    public String toString() {
+        return String.format("the content is: %s", getData());
+    }
+
 }
