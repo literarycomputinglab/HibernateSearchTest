@@ -9,6 +9,7 @@ package it.cnr.ilc.lc.hibernatesearchtest;
  *
  * @author simone
  */
+import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -43,7 +44,7 @@ import org.hibernate.search.annotations.TokenizerDef;
     })
         })
 @Table(name = "contact")
-public class Contact {
+public class Contact implements Serializable {
 
     private Integer id;
     private String name;

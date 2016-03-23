@@ -55,6 +55,7 @@ public class App {
         //omegaFacetExample("");
         //omegaKeySearch("");
         omegaResourceCreate();
+      //  omegaKeySearch("gentil"); //Thesaglia, Filostrato
     }
 
     public static List<Annotation> omegaFacetExample(String str) {
@@ -550,11 +551,45 @@ public class App {
 //        }           
 //    }
 
-    private static void omegaKeySearch(String string) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public static List<Source> omegaKeySearch(String string) {
+
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("omega");
+        EntityManager omegaEntityManager = entityManagerFactory.createEntityManager();
+
+        FullTextEntityManager fullTextEntityManager = org.hibernate.search.jpa.Search.getFullTextEntityManager(omegaEntityManager);
+
+        omegaEntityManager.getTransaction().begin();
+
+        QueryBuilder qb = fullTextEntityManager.getSearchFactory().buildQueryBuilder().forEntity(Source.class).get();
+        org.apache.lucene.search.Query query = qb
+                .keyword()
+                .onField("content.data")
+                .matching(string)
+                .createQuery();
+
+        logger.info("Query: " + query.toString());
+        javax.persistence.Query persistenceQuery
+                = fullTextEntityManager.createFullTextQuery(query, Source.class);
+        List<Source> result = persistenceQuery.getResultList();
+
+        logger.info("isEmpty? " + result.isEmpty());
+        for (Source s : result) {
+            logger.info(s.getId() + " " + s.getContent().getData());
+        }
+
+        fullTextEntityManager.close();
+        omegaEntityManager.getTransaction().commit();
+
+        return result;
+
     }
 
     private static void omegaResourceCreate() {
+
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("omega");
+        EntityManager omegaEntityManager = entityManagerFactory.createEntityManager();
+        omegaEntityManager.getTransaction().begin();
+
         StringBuffer sb = new StringBuffer();
         InputStream is = App.class.getResourceAsStream("/texts/paginaBoccaccio.txt");
         InputStreamReader reader = new InputStreamReader(is, Charset.forName("utf-8"));
@@ -570,6 +605,11 @@ public class App {
 
         System.err.println("***********");
 
+        Source s1 = new Source();
+        s1.setContent(boccaccio);
+        s1.setUri(URI.create("/ilc/boccaccio/001").toASCIIString());
+        boccaccio.setSource(s1);
+
         sb.replace(0, sb.length(), "");
         sb.trimToSize();
 
@@ -583,6 +623,11 @@ public class App {
 
         Content dante = new Content();
         dante.setData(sb.toString());
+
+        Source s2 = new Source();
+        s2.setContent(dante);
+        s2.setUri(URI.create("/ilc/dante/001").toASCIIString());
+        dante.setSource(s2);
         System.err.println(dante);
 
         System.err.println("***********");
@@ -597,9 +642,35 @@ public class App {
         for (String line : lines) {
             sb.append(line + " ");
         }
+
         Content petrarca = new Content();
         petrarca.setData(sb.toString());
+
+        Source s3 = new Source();
+        s3.setContent(petrarca);
+        s3.setUri(URI.create("/ilc/petrarca/001").toASCIIString());
+        petrarca.setSource(s3);
+
         System.err.println(petrarca);
+
+        omegaEntityManager.persist(s1);
+        omegaEntityManager.persist(s2);
+        omegaEntityManager.persist(s3);
+
+        omegaEntityManager.getTransaction().commit();
+        omegaEntityManager.close();
+        entityManagerFactory.close();
+
+    }
+
+    public static void shutdown() {
+
+        logger.info("shutdown()");
+        EntityManagerFactory entityManagerFactory = Persistence.createEntityManagerFactory("omega");
+        EntityManager omegaEntityManager = entityManagerFactory.createEntityManager();
+
+        omegaEntityManager.close();
+        entityManagerFactory.close();
 
     }
 

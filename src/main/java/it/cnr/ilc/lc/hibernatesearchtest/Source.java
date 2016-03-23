@@ -5,6 +5,7 @@
  */
 package it.cnr.ilc.lc.hibernatesearchtest;
 
+import java.io.Serializable;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -13,6 +14,7 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import org.hibernate.search.annotations.ContainedIn;
+import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
 import org.hibernate.search.annotations.Indexed;
 import org.hibernate.search.annotations.IndexedEmbedded;
@@ -23,7 +25,7 @@ import org.hibernate.search.annotations.IndexedEmbedded;
  */
 @Entity
 @Indexed
-public class Source {
+public class Source implements Serializable {
 
     @Id
     @GeneratedValue

@@ -5,13 +5,21 @@
  */
 package it.cnr.ilc.lc.hibernatesearchtest;
 
+import java.io.Serializable;
+import javax.persistence.Basic;
+import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.OneToOne;
 import org.hibernate.search.annotations.ContainedIn;
+import org.hibernate.search.annotations.DocumentId;
 import org.hibernate.search.annotations.Field;
+import org.hibernate.search.annotations.FieldBridge;
 import org.hibernate.search.annotations.Indexed;
+import org.hibernate.search.bridge.builtin.StringBridge;
 
 /**
  *
@@ -19,12 +27,13 @@ import org.hibernate.search.annotations.Indexed;
  */
 @Entity
 @Indexed
-public class Content {
+public class Content implements Serializable {
 
     @Id
     @GeneratedValue
     private Long id;
 
+    @Lob
     @Field
     private String data;
 

@@ -5,6 +5,7 @@
  */
 package it.cnr.ilc.lc.hibernatesearchtest;
 
+import java.io.Serializable;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -25,7 +26,7 @@ import org.hibernate.search.annotations.IndexedEmbedded;
  */
 @Entity
 @Indexed
-public class Annotation {
+public class Annotation implements Serializable {
 
     @Id
     @GeneratedValue
